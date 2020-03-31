@@ -304,7 +304,7 @@ export default {
     // this.getClients();
     (function() {
       // do some stuff
-      setInterval(t.getClients, 7000);
+      setInterval(t.getClients, 8000);
     })();
   },
   methods: {

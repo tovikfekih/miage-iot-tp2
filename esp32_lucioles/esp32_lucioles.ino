@@ -77,8 +77,8 @@ void mqtt_pubcallback(char* topic, byte* message, unsigned int length) {
 
   if (messageTemp == whoami && String (topic) == TOPIC_LED) {
     Serial.print("Action : Changing output to ");
-      Serial.println("on");
-      set_pin(ledPin, HIGH);
+    Serial.println("on");
+    set_pin(ledPin, HIGH);
   }
 }
 /*============= MQTT SUBSCRIBE =====================*/
@@ -138,7 +138,7 @@ void loop () {
   client.loop(); // Process MQTT ... obligatoire une fois par loop()
 
   long now = millis();
-  if (now - lastMsg > 5000) {
+  if (now - lastMsg > 7000) {
 
     lastMsg = now;
     /* Publish Temperature & Light periodically */
