@@ -26,7 +26,7 @@ long lastMsg = 0;
 
 /*===== MQTT broker/server and TOPICS ========*/
 
-const char* mqtt_server = "mqtt.miage-iot.tk";
+const char* mqtt_server = "broker.hivemq.com";
 #define TOPIC_TEMP "sensors/temp"
 #define TOPIC_LED "sensors/led"
 #define TOPIC_LED_OK "sensors/led_ok"
