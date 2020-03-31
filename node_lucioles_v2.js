@@ -44,7 +44,6 @@ client.connect(function(err, mongodbClient) {
 
   client_mqtt.on("connect", function() {
     client_mqtt.subscribe(PING_ESP, function(err) {
-      console.log("Il y est !!!!!");
       if (!err) {
         console.log("Node Server has subscribed to ", TOPIC_LIGHT);
       }
@@ -88,8 +87,6 @@ client.connect(function(err, mongodbClient) {
     if (index === -1) {
       wholist.push({ who: wh });
     }
-    console.log("wholist using the node server :", wholist);
-
     var frTime = new Date();
     var new_entry = {
       date: frTime,
@@ -103,12 +100,9 @@ client.connect(function(err, mongodbClient) {
     dbo.collection(key).insertOne(new_entry, function(err, res) {
       if (err) throw err;
       console.log("Item inserted in db in collection :", key);
-      console.log(new_entry);
     });
 
-    dbo.listCollections().toArray(function(err, collInfos) {
-      console.log("\nList of collections currently in DB: ", collInfos);
-    });
+    dbo.listCollections().toArray(function(err, collInfos) {});
   });
 
   process.on("exit", code => {
@@ -139,7 +133,6 @@ client.connect(function(err, mongodbClient) {
       });
   });
   app.post("/users", (req, res) => {
-    console.log(req.body);
     const new_entry = {
       name: req.body.name,
       mac: req.body.mac,
@@ -154,16 +147,8 @@ client.connect(function(err, mongodbClient) {
     });
   });
   app.get("/esp/:who/:what", function(req, res) {
-    console.log(req.originalUrl);
-
     wh = req.params.who;
     wa = req.params.what;
-
-    console.log("\n--------------------------------");
-    console.log("A client/navigator ", req.ip);
-    console.log("sending URL ", req.originalUrl);
-    console.log("wants to GET ", wa);
-    console.log("values from object ", wh);
 
     const nb = 200;
     key = wa;
@@ -174,12 +159,8 @@ client.connect(function(err, mongodbClient) {
       .limit(100)
       .toArray(function(err, result) {
         if (err) throw err;
-        console.log("get on ", key);
-        console.log(result);
         res.json(result.reverse());
-        console.log("end find");
       });
-    console.log("end app.get");
   });
 });
 
