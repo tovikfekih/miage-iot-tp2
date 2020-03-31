@@ -73,7 +73,7 @@ client.connect(function(err, mongodbClient) {
       message = JSON.parse(message);
       dbo
         .collection("users")
-        .update({ mac: message.who }, { $set: { ok_led: new Date() } });
+        .updateMany({ mac: message.who }, { $set: { led_ok: new Date() } });
       return;
     }
 

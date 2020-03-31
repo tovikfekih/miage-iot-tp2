@@ -4,6 +4,15 @@
       <v-row>
         <v-col class="text-center">
           <div class="display-1 font-weight-light">ESPs of Lucioles</div>
+          <div class="body-1 font-weight-light pt-3">
+            Présenté par :
+            <v-chip
+              class="ml-3"
+              v-for="(u, index) in contributors"
+              :key="index"
+              >{{ u }}</v-chip
+            >
+          </div>
         </v-col>
       </v-row>
       <v-row>
@@ -123,11 +132,23 @@
                   ></v-btn>
                 </template>
                 <template v-slot:item.temp="{ item }">
-                  <v-chip> {{ item.temp }} °c </v-chip>
+                  <v-chip v-if="item.data.temp.length <= 0"> °c</v-chip>
+                  <v-chip v-else>
+                    {{
+                      item.data.temp[0].data[item.data.temp[0].data.length - 1]
+                        .y
+                    }}
+                    °c
+                  </v-chip>
                 </template>
                 <template v-slot:item.light="{ item }">
-                  <v-chip>
-                    {{ item.light }}
+                  <v-chip v-if="item.data.light.length <= 0"></v-chip>
+                  <v-chip v-else>
+                    {{
+                      item.data.light[0].data[
+                        item.data.light[0].data.length - 1
+                      ].y
+                    }}
                   </v-chip>
                 </template>
                 <template v-slot:item.ping="{ item }">
@@ -147,11 +168,30 @@
         </v-col>
       </v-row>
       <v-dialog
-        :value="userLedOK != null"
-        max-width="600px"
-        @close="userLedOK = null"
+        :value="userLedOK.length > 0"
+        max-width="550px"
+        @close="userLedOK = []"
       >
-        <v-card v-if="userLedOK"> </v-card>
+        <v-card v-if="userLedOK">
+          <v-card-text class="pa-8">
+            <div class="display-2 text-center font-weight-thin">
+              Bonne nouvelle !
+            </div>
+            <div class="body-1 text-center mt-2 px-8 py-5">
+              Ces personnes que vous avez alerté vous ont répondu que tout va
+              bien !
+            </div>
+            <div class=" text-center">
+              <v-chip
+                class="ml-2"
+                large
+                v-for="(u, index) in userLedOK"
+                :key="index"
+                >{{ u.name }} [{{ u.mac }}]</v-chip
+              >
+            </div>
+          </v-card-text>
+        </v-card>
       </v-dialog>
     </v-container>
   </v-app>
@@ -166,10 +206,18 @@ export default {
   },
   data() {
     return {
+      contributors: [
+        "Taoufik FEKIH",
+        "Norman BAJAT",
+        "Celine MARIN",
+        "Yan FULCONIS",
+        "Ines NABIL",
+        "Maxime MARIAS"
+      ],
       repeatInterval: null,
       dialog: false,
       created: false,
-      userLedOK: null,
+      userLedOK: [],
       loading: false,
       userModelForm: {
         name: "",
@@ -279,8 +327,8 @@ export default {
   methods: {
     getAllClientsData() {
       let t = this;
-      this.users.map(u => {
-        t.getClientData(u);
+      this.users.map((u, i) => {
+        t.getClientData(i);
       });
     },
     addClient() {
@@ -300,6 +348,11 @@ export default {
     getClients() {
       this.$axios.get("/users").then(r => {
         r.data.map(u => {
+          if (u.led_ok) {
+            if (moment(u.led_ok).isAfter(moment().subtract(15, "seconds"))) {
+              this.userLedOK.push(u);
+            }
+          }
           u.data = {
             temp: [],
             light: [],
@@ -335,7 +388,8 @@ export default {
         }
       }
       if (!found) this.series[graph].push(s);
-      this.$refs["graph-" + graph].updateSeries(this.series[graph]);
+      if (this.$refs["graph-" + graph])
+        this.$refs["graph-" + graph].updateSeries(this.series[graph]);
     },
     alerter(client) {
       this.$axios
@@ -345,42 +399,18 @@ export default {
           client.data.ledOn = !client.data.ledOn;
         });
     },
-    getClientData(client) {
-      this.$axios.get(`esp/${client.mac}/temp`).then(r => {
-        this.handleUserGraph(client, r.data, "temp");
+    getClientData(clientIndex) {
+      this.$axios.get(`esp/${this.users[clientIndex].mac}/temp`).then(r => {
+        this.handleUserGraph(this.users[clientIndex], r.data, "temp");
         if (r.data.length > 0) {
-          client.temp = r.data[r.data.length - 1].value;
-          r.data = r.data.slice(r.data.length - 10, r.data.length);
+          this.users[clientIndex].temp = r.data[r.data.length - 1].value;
         }
-        let temp = {
-          name: "Température",
-          data: []
-        };
-        r.data.map(o => {
-          temp.data.push({
-            x: moment(o.data).format("YYYY-MM-DD HH:mm"),
-            y: o.value
-          });
-        });
-        client.data.temp = [temp];
       });
-      this.$axios.get(`esp/${client.mac}/light`).then(r => {
-        this.handleUserGraph(client, r.data, "light");
+      this.$axios.get(`esp/${this.users[clientIndex].mac}/light`).then(r => {
+        this.handleUserGraph(this.users[clientIndex], r.data, "light");
         if (r.data.length > 0) {
-          client.light = r.data[r.data.length - 1].value;
-          r.data = r.data.slice(r.data.length - 10, r.data.length);
+          this.users[clientIndex].light = r.data[r.data.length - 1].value;
         }
-        let light = {
-          name: "Luminosité",
-          data: []
-        };
-        r.data.map(o => {
-          light.data.push({
-            x: moment(o.data).format("YYYY-MM-DD HH:mm"),
-            y: o.value
-          });
-        });
-        client.data.light = [light];
       });
     }
   }
