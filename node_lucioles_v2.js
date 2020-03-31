@@ -6,6 +6,7 @@ const mqtt = require("mqtt");
 const TOPIC_LIGHT = "sensors/light";
 const TOPIC_TEMP = "sensors/temp";
 const PING_ESP = "sensors/led";
+const TOPIC_LED_OK = "sensors/led_ok";
 
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -14,7 +15,7 @@ const app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, "/")));
+app.use(express.static(path.join(__dirname, "/client/dist")));
 app.use(function(request, response, next) {
   response.header("Access-Control-Allow-Origin", "*");
   response.header("Access-Control-Allow-Headers", "*");
@@ -58,10 +59,18 @@ client.connect(function(err, mongodbClient) {
         console.log("Node Server has subscribed to ", TOPIC_TEMP);
       }
     });
+    client_mqtt.subscribe(TOPIC_LED_OK, function(err) {
+      if (!err) {
+        console.log("Node Server has subscribed to ", TOPIC_LED_OK);
+      }
+    });
   });
 
   client_mqtt.on("message", function(topic, message) {
     if (topic == PING_ESP) return;
+    if (topic == TOPIC_LED_OK) {
+      return;
+    }
 
     console.log("MQTT msg on topic : ", topic.toString());
     console.log("Msg payload : ", message.toString());
