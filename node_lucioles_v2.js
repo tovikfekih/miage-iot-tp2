@@ -131,7 +131,8 @@ client.connect(function(err, mongodbClient) {
     dbo
       .collection("users")
       .find({})
-      .sort({ createdAt: -1 })
+      .sort({ _id: -1 })
+      .limit(100)
       .toArray((err, r) => {
         if (err) throw err;
         return res.json(r);
@@ -169,8 +170,8 @@ client.connect(function(err, mongodbClient) {
     dbo
       .collection(key)
       .find({ who: wh })
-      .sort({ date: -1 })
-      .limit(nb)
+      .sort({ _id: -1 })
+      .limit(100)
       .toArray(function(err, result) {
         if (err) throw err;
         console.log("get on ", key);
