@@ -12,7 +12,7 @@ const bodyParser = require("body-parser");
 
 const app = express();
 
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "/")));
 app.use(function(request, response, next) {
@@ -65,8 +65,12 @@ client.connect(function(err, mongodbClient) {
 
     console.log("MQTT msg on topic : ", topic.toString());
     console.log("Msg payload : ", message.toString());
-
-    message = JSON.parse(message);
+    try {
+      message = JSON.parse(message);
+    } catch (e) {
+      cononsole.log("Le message n'est pas un json valable");
+      return;
+    }
     wh = message.who;
     val = message.value;
 
@@ -77,9 +81,7 @@ client.connect(function(err, mongodbClient) {
     }
     console.log("wholist using the node server :", wholist);
 
-    var frTime = new Date().toLocaleString("sv-SE", {
-      timeZone: "Europe/Paris"
-    });
+    var frTime = new Date();
     var new_entry = {
       date: frTime,
       who: wh,
@@ -122,11 +124,33 @@ client.connect(function(err, mongodbClient) {
   app.get("/", function(req, res) {
     res.sendFile(path.join(__dirname + "/ui_lucioles.html"));
   });
-
-  app.get("/esp/:what", function(req, res) {
+  app.get("/users", (req, res) => {
+    dbo
+      .collection("users")
+      .find({})
+      .toArray((err, r) => {
+        if (err) throw err;
+        return res.json(r);
+      });
+  });
+  app.post("/users", (req, res) => {
+    console.log(req.body);
+    const new_entry = {
+      name: req.body.name,
+      mac: req.body.mac
+    };
+    dbo.collection("users").insertOne(new_entry, function(err, r) {
+      if (err) {
+        return res.status(500).json({});
+        throw err;
+      }
+      return res.status(200).json(new_entry);
+    });
+  });
+  app.get("/esp/:who/:what", function(req, res) {
     console.log(req.originalUrl);
 
-    wh = req.query.who;
+    wh = req.params.who;
     wa = req.params.what;
 
     console.log("\n--------------------------------");
@@ -140,7 +164,7 @@ client.connect(function(err, mongodbClient) {
     dbo
       .collection(key)
       .find({ who: wh })
-      .sort({ _id: -1 })
+      .sort({ date: -1 })
       .limit(nb)
       .toArray(function(err, result) {
         if (err) throw err;
