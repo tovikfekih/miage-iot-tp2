@@ -191,18 +191,6 @@ export default {
         { text: "Etat LED", value: "led" },
         { text: "Température Actuelle", value: "temp" },
         { text: "Luminosité Actuelle", value: "light" },
-        {
-          text: "Evolution de la température",
-          value: "temp_graph",
-          sortable: false,
-          width: 200
-        },
-        {
-          text: "Evolution de la Luminosité",
-          value: "light_graph",
-          sortable: false,
-          width: 200
-        },
         { text: "Alérter", value: "ping" }
       ],
       users: [],
