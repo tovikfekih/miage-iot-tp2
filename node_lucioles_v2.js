@@ -1,6 +1,8 @@
 // Importation des modules
 var path = require("path");
 
+const config = require("./config");
+
 // var, const, let :
 // https://medium.com/@vincent.bocquet/var-let-const-en-js-quelles-diff%C3%A9rences-b0f14caa2049
 
@@ -31,14 +33,13 @@ app.use(function(request, response, next) {
 
 // MongoDB
 var mongodb = require("mongodb");
-const mongoBaseName = "lucioles"; // Nom de la base
 //const uri = 'mongodb://localhost:27017/'; //URL de connection
 //const uri = 'mongodb://10.9.128.189:27017/'; //URL de connection
-const uri =
-  "mongodb+srv://Norman:admin@cluster0-sfwxo.mongodb.net/test?retryWrites=true&w=majority";
 
 const MongoClient = require("mongodb").MongoClient;
-const client = new MongoClient(uri, { useNewUrlParser: true });
+const client = new MongoClient(config.MONGO.SERVER_URI, {
+  useNewUrlParser: true
+});
 
 // Connection a la DB MongoDB
 client.connect(function(err, mongodbClient) {
@@ -50,7 +51,7 @@ client.connect(function(err, mongodbClient) {
   //===============================================
   // Get a connection to the DB "lucioles" or create
   //
-  var dbo = client.db(mongoBaseName);
+  var dbo = client.db(config.MONGO.DATABASE);
 
   // dbo.dropCollection("temp", function(err, delOK) {
   // if (err) {throw err};

@@ -24,7 +24,7 @@ String whoami; // Identification de CET ESP au sein de la flotte
 
 /*===== MQTT broker/server and TOPICS ========*/
 //const char* mqtt_server = "192.168.1.100";
-const char* mqtt_server = "broker.hivemq.com";
+const char* mqtt_server = "mqtt.miage-iot.tk";
 #define TOPIC_TEMP "sensors/temp"
 #define TOPIC_LED "sensors/led"
 #define TOPIC_LIGHT "sensors/light"
