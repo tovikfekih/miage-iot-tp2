@@ -301,7 +301,7 @@ export default {
   },
   created() {
     let t = this;
-    // this.getClients();
+    this.getClients();
     (function() {
       // do some stuff
       setInterval(t.getClients, 8000);
