@@ -62,7 +62,7 @@ void mqtt_pubcallback(char* topic, byte* message, unsigned int length) {
   */
   // Byte list to String ... plus facile a traiter ensuite !
   // Mais sans doute pas optimal en performance => heap ?
-  String messageTemp ;
+  const char* messageTemp ;
   for (int i = 0 ; i < length ; i++) {
     messageTemp += (char) message[i];
   }
@@ -78,7 +78,7 @@ void mqtt_pubcallback(char* topic, byte* message, unsigned int length) {
   if (!client.connected()) {
     mqtt_mysubscribe((char*) (TOPIC_LED));
   }
-  if(strstr(messageTemp, whoami) == NULL) 
+  if(strstr(messageTemp, whoami.c_str()) == NULL) 
       return;
     // Par exemple : Changes the LED output state according to the message
     Serial.print("Action : Changing output to ");
