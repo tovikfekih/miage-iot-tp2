@@ -114,7 +114,7 @@ window.onload = function init() {
     // serie => for choosing chart/serie on the page
     // wh => which esp do we want to query data
 
-    node_url = "http://localhost:3000";
+    node_url = "";
     //node_url = 'http://10.9.128.189:3000'
     //node_url = 'http://192.168.1.102:3000'
 
