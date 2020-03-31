@@ -68,7 +68,12 @@ client.connect(function(err, mongodbClient) {
   client_mqtt.on("message", function(topic, message) {
     if (topic == PING_ESP) return;
     if (topic == TOPIC_LED_OK) {
-      return;
+      message = JSON.parse(message);
+      dbo.collection("users").findOne({ mac: message.who }, (err, item) => {
+        dbo
+          .collection("users")
+          .updateOne({ mac: message.who }, { $set: { led_ok: new Date() } });
+      });
     }
 
     console.log("MQTT msg on topic : ", topic.toString());
@@ -76,7 +81,6 @@ client.connect(function(err, mongodbClient) {
     try {
       message = JSON.parse(message);
     } catch (e) {
-      cononsole.log("Le message n'est pas un json valable");
       return;
     }
     wh = message.who;
