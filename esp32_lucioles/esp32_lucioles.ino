@@ -29,6 +29,7 @@ long lastMsg = 0;
 const char* mqtt_server = "mqtt.miage-iot.tk";
 #define TOPIC_TEMP "sensors/temp"
 #define TOPIC_LED "sensors/led"
+#define TOPIC_LED_OK "sensors/led_ok"
 #define TOPIC_LIGHT "sensors/light"
 
 /*=============== SETUP =====================*/
@@ -65,21 +66,26 @@ void mqtt_pubcallback(char* topic, byte* message, unsigned int length) {
   for (int i = 0 ; i < length ; i++) {
     messageTemp += (char) message[i];
   }
-
+  
   Serial.print("Message : ");
   Serial.println(messageTemp);
   Serial.print("arrived on topic : ");
   //Serial.println(topic) ;
 
+ 
   // Analyse du message et Action
   if (String (topic) == TOPIC_LED) {
+  if (!client.connected()) {
+    mqtt_mysubscribe((char*) (TOPIC_LED));
+  }
+  if(strstr(messageTemp, whoami) == NULL) 
+      return;
     // Par exemple : Changes the LED output state according to the message
     Serial.print("Action : Changing output to ");
-    if (messageTemp == "on") {
+    if (strstr(messageTemp, "\"state\":\"on\"") != NULL) {
       Serial.println("on");
       set_pin(ledPin, HIGH);
-
-    } else if (messageTemp == "off") {
+    } else if (strstr(messageTemp, "\"state\":\"off\"") != NULL) {
       Serial.println("off");
       set_pin(ledPin, LOW);
     }
@@ -135,13 +141,12 @@ void loop () {
 
   client.loop(); // Process MQTT ... obligatoire une fois par loop()
   /* Subscribe to TOPIC_LED if not yet ! */
-  if (!client.connected()) {
-    mqtt_mysubscribe((char*) (TOPIC_LED));
-  }
+
 
 
   long now = millis();
   if (now - lastMsg > 5000) {
+    
     lastMsg = now;
     /* Publish Temperature & Light periodically */
     String payload; // Payload : "JSON ready"
@@ -162,7 +167,19 @@ void loop () {
     Serial.println(data);
     client.publish(TOPIC_LIGHT, data);
   }
-  //delay(50);
+
+  if(get_light()<=2 && digitalRead(ledPin == HIGH)){
+    set_pin(ledPin, LOW);
+    String payload; // Payload : "JSON ready"
+    char data[80];
+    payload = "{\"who\": \"" + whoami + "\"}";
+
+    payload.toCharArray(data, (payload.length() + 1)); // Convert String payload to a char array
+    client.publish(TOPIC_LED_OK, data);
+  }
+    
+  
+  delay(50);
   
 
 }
