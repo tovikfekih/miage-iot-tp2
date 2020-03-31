@@ -73,7 +73,7 @@ client.connect(function(err, mongodbClient) {
       message = JSON.parse(message);
       dbo
         .collection("users")
-        .updateOne({ mac: message.who }, { $set: { led_ok: new Date() } });
+        .update({ mac: message.who }, { $set: { ok_led: new Date() } });
       return;
     }
 
@@ -139,6 +139,7 @@ client.connect(function(err, mongodbClient) {
     const new_entry = {
       name: req.body.name,
       mac: req.body.mac,
+      led_ok: null,
       createdAt: new Date()
     };
     dbo.collection("users").insertOne(new_entry, function(err, r) {

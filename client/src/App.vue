@@ -146,6 +146,13 @@
           </v-card>
         </v-col>
       </v-row>
+      <v-dialog
+        :value="userLedOK != null"
+        max-width="600px"
+        @close="userLedOK = null"
+      >
+        <v-card v-if="userLedOK"> </v-card>
+      </v-dialog>
     </v-container>
   </v-app>
 </template>
@@ -162,6 +169,7 @@ export default {
       repeatInterval: null,
       dialog: false,
       created: false,
+      userLedOK: null,
       loading: false,
       userModelForm: {
         name: "",
