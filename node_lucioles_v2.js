@@ -109,13 +109,7 @@ client.connect(function(err, mongodbClient) {
     }
   });
   app.get("/ping/:who/:state", function(req, res) {
-    client_mqtt.publish(
-      PING_ESP,
-      JSON.stringify({
-        who: req.params.who,
-        state: req.params.state == "on" ? "on" : "off"
-      })
-    );
+    client_mqtt.publish(PING_ESP, req.params.who);
     res.json({
       success: true
     });

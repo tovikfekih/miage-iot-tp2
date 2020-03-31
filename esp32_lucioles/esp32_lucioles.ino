@@ -48,7 +48,7 @@ void setup () {
   // set callback when publishes arrive for the subscribed topic
   // methode a effet local => on n'a pas a initier/verifier la connection.
   client.setCallback(mqtt_pubcallback) ;
-  
+
   /* Choix d'une identification pour cet ESP ---*/
   // whoami = "esp1";
   whoami =  String(WiFi.macAddress());
@@ -62,36 +62,25 @@ void mqtt_pubcallback(char* topic, byte* message, unsigned int length) {
   */
   // Byte list to String ... plus facile a traiter ensuite !
   // Mais sans doute pas optimal en performance => heap ?
-  const char* messageTemp ;
+  String messageTemp ;
   for (int i = 0 ; i < length ; i++) {
     messageTemp += (char) message[i];
   }
-  
+
   Serial.print("Message : ");
   Serial.println(messageTemp);
   Serial.print("arrived on topic : ");
   //Serial.println(topic) ;
 
- 
+
   // Analyse du message et Action
-  if (String (topic) == TOPIC_LED) {
-  if (!client.connected()) {
-    mqtt_mysubscribe((char*) (TOPIC_LED));
-  }
-  if(strstr(messageTemp, whoami.c_str()) == NULL) 
-      return;
-    // Par exemple : Changes the LED output state according to the message
+
+  if (messageTemp == whoami && String (topic) == TOPIC_LED) {
     Serial.print("Action : Changing output to ");
-    if (strstr(messageTemp, "\"state\":\"on\"") != NULL) {
       Serial.println("on");
       set_pin(ledPin, HIGH);
-    } else if (strstr(messageTemp, "\"state\":\"off\"") != NULL) {
-      Serial.println("off");
-      set_pin(ledPin, LOW);
-    }
   }
 }
-
 /*============= MQTT SUBSCRIBE =====================*/
 
 void mqtt_mysubscribe(char* topic) {
@@ -139,14 +128,18 @@ int get_pin(int pin) {
 /*================= LOOP ======================*/
 void loop () {
 
-  client.loop(); // Process MQTT ... obligatoire une fois par loop()
+
   /* Subscribe to TOPIC_LED if not yet ! */
 
+  if (!client.connected()) {
+    mqtt_mysubscribe((char*) (TOPIC_LED));
+  }
 
+  client.loop(); // Process MQTT ... obligatoire une fois par loop()
 
   long now = millis();
   if (now - lastMsg > 5000) {
-    
+
     lastMsg = now;
     /* Publish Temperature & Light periodically */
     String payload; // Payload : "JSON ready"
@@ -168,7 +161,7 @@ void loop () {
     client.publish(TOPIC_LIGHT, data);
   }
 
-  if(get_light()<=2 && digitalRead(ledPin == HIGH)){
+  if (get_light() <= 2 && digitalRead(ledPin == HIGH)) {
     set_pin(ledPin, LOW);
     String payload; // Payload : "JSON ready"
     char data[80];
@@ -177,9 +170,6 @@ void loop () {
     payload.toCharArray(data, (payload.length() + 1)); // Convert String payload to a char array
     client.publish(TOPIC_LED_OK, data);
   }
-    
-  
-  delay(50);
-  
 
+  delay(50);
 }
