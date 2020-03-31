@@ -9,6 +9,7 @@ const config = require("./config");
 const mqtt = require("mqtt");
 const TOPIC_LIGHT = "sensors/light";
 const TOPIC_TEMP = "sensors/temp";
+const PING_ESP = "sensors/led"
 
 // express
 // express
@@ -84,6 +85,7 @@ client.connect(function(err, mongodbClient) {
         console.log("Node Server has subscribed to ", TOPIC_TEMP);
       }
     });
+
   });
 
   //================================================================
@@ -152,7 +154,13 @@ client.connect(function(err, mongodbClient) {
       mongodbClient.close();
     }
   });
-
+  app.get("/ping/:what", function(req, res) {
+    client_mqtt.publish(PING_ESP,req.params.what);
+    res.json({
+      succes:true,
+      message:req.params.what
+    });
+  })
   //================================================================
   //==== REQUETES HTTP reconnues par le Node =======================
   //================================================================
