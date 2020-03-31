@@ -116,7 +116,7 @@ client.connect(function(err, mongodbClient) {
   });
 
   app.get("/", function(req, res) {
-    res.sendFile(path.join(__dirname + "/ui_lucioles.html"));
+    res.sendFile(path.join(__dirname + "/client/dist/index.html"));
   });
   app.get("/users", (req, res) => {
     dbo
