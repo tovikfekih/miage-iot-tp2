@@ -131,6 +131,7 @@ client.connect(function(err, mongodbClient) {
     dbo
       .collection("users")
       .find({})
+      .sort({ createdAt: -1 })
       .toArray((err, r) => {
         if (err) throw err;
         return res.json(r);
@@ -140,7 +141,8 @@ client.connect(function(err, mongodbClient) {
     console.log(req.body);
     const new_entry = {
       name: req.body.name,
-      mac: req.body.mac
+      mac: req.body.mac,
+      createdAt: new Date()
     };
     dbo.collection("users").insertOne(new_entry, function(err, r) {
       if (err) {
