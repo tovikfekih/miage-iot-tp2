@@ -141,33 +141,6 @@
                     Alerter</v-btn
                   >
                 </template>
-                <template v-slot:item.temp_graph="{ item }">
-                  <apexchart
-                    width="100%"
-                    height="250"
-                    type="line"
-                    :options="tableOptions"
-                    :series="series.temp"
-                  ></apexchart>
-                </template>
-                <template v-slot:item.temp_graph="{ item }">
-                  <apexchart
-                    width="100%"
-                    height="150"
-                    type="line"
-                    :options="tableOptions"
-                    :series="item.data.temp"
-                  ></apexchart>
-                </template>
-                <template v-slot:item.light_graph="{ item }">
-                  <apexchart
-                    width="100%"
-                    height="150"
-                    type="line"
-                    :options="tableOptions"
-                    :series="item.data.light"
-                  ></apexchart>
-                </template>
               </v-data-table>
             </v-card-text>
           </v-card>
@@ -304,7 +277,7 @@ export default {
     this.getClients();
     (function() {
       // do some stuff
-      setInterval(t.getClients, 8000);
+      setInterval(t.getClients, 10000);
     })();
   },
   methods: {
