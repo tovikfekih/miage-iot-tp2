@@ -161,7 +161,7 @@ void loop () {
     client.publish(TOPIC_LIGHT, data);
   }
 
-  if (get_light() <= 2 && digitalRead(ledPin == HIGH)) {
+  if (get_light() <= 2 && ledPin == HIGH) {
     set_pin(ledPin, LOW);
     String payload; // Payload : "JSON ready"
     char data[80];
@@ -171,5 +171,5 @@ void loop () {
     client.publish(TOPIC_LED_OK, data);
   }
 
-  delay(50);
+  delay(1000);
 }

@@ -66,18 +66,17 @@ client.connect(function(err, mongodbClient) {
   });
 
   client_mqtt.on("message", function(topic, message) {
+    console.log("MQTT msg on topic : ", topic.toString());
+    console.log("Msg payload : ", message.toString());
     if (topic == PING_ESP) return;
     if (topic == TOPIC_LED_OK) {
       message = JSON.parse(message);
-      dbo.collection("users").findOne({ mac: message.who }, (err, item) => {
-        dbo
-          .collection("users")
-          .updateOne({ mac: message.who }, { $set: { led_ok: new Date() } });
-      });
+      dbo
+        .collection("users")
+        .updateOne({ mac: message.who }, { $set: { led_ok: new Date() } });
+      return;
     }
 
-    console.log("MQTT msg on topic : ", topic.toString());
-    console.log("Msg payload : ", message.toString());
     try {
       message = JSON.parse(message);
     } catch (e) {
