@@ -7,7 +7,6 @@ const config = require("./config");
 // https://medium.com/@vincent.bocquet/var-let-const-en-js-quelles-diff%C3%A9rences-b0f14caa2049
 
 const mqtt = require("mqtt");
-// Topics MQTT
 const TOPIC_LIGHT = "sensors/light";
 const TOPIC_TEMP = "sensors/temp";
 
