@@ -206,6 +206,6 @@ client.connect(function(err, mongodbClient) {
 }); // end of MongoClient.connect
 
 // L'application est accessible sur le port 3000
-app.listen(3000, () => {
-  console.log("Server listening on port 3000");
+app.listen(config.PORT, () => {
+  console.log(`Server listening on port ${config.PORT}`);
 });
