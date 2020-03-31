@@ -9,7 +9,7 @@ const config = require("./config");
 const mqtt = require("mqtt");
 const TOPIC_LIGHT = "sensors/light";
 const TOPIC_TEMP = "sensors/temp";
-const PING_ESP = "sensors/led"
+const PING_ESP = "sensors/led";
 
 // express
 // express
@@ -73,6 +73,13 @@ client.connect(function(err, mongodbClient) {
   // Des la connection, le serveur NodeJS s'abonne aux topics MQTT
   //
   client_mqtt.on("connect", function() {
+    client_mqtt.subscribe(PING_ESP, function(err) {
+      console.log("Il y est !!!!!");
+      if (!err) {
+        //client_mqtt.publish(TOPIC_LIGHT, 'Hello mqtt')
+        console.log("Node Server has subscribed to ", TOPIC_LIGHT);
+      }
+    });
     client_mqtt.subscribe(TOPIC_LIGHT, function(err) {
       if (!err) {
         //client_mqtt.publish(TOPIC_LIGHT, 'Hello mqtt')
@@ -85,7 +92,6 @@ client.connect(function(err, mongodbClient) {
         console.log("Node Server has subscribed to ", TOPIC_TEMP);
       }
     });
-
   });
 
   //================================================================
@@ -94,6 +100,8 @@ client.connect(function(err, mongodbClient) {
   // C'est cette fonction qui alimente la BD.
   //
   client_mqtt.on("message", function(topic, message) {
+    if (topic == PING_ESP) return;
+
     console.log("MQTT msg on topic : ", topic.toString());
     console.log("Msg payload : ", message.toString());
 
@@ -155,12 +163,12 @@ client.connect(function(err, mongodbClient) {
     }
   });
   app.get("/ping/:what", function(req, res) {
-    client_mqtt.publish(PING_ESP,req.params.what);
+    client_mqtt.publish(PING_ESP, req.params.what == "on" ? "on" : "off");
     res.json({
-      succes:true,
-      message:req.params.what
+      succes: true,
+      message: req.params.what
     });
-  })
+  });
   //================================================================
   //==== REQUETES HTTP reconnues par le Node =======================
   //================================================================

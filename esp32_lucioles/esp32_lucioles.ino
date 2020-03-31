@@ -23,7 +23,7 @@ String whoami; // Identification de CET ESP au sein de la flotte
 //StaticJsonBuffer<200> jsonBuffer;
 
 /*===== MQTT broker/server and TOPICS ========*/
-//const char* mqtt_server = "192.168.1.100";
+
 const char* mqtt_server = "mqtt.miage-iot.tk";
 #define TOPIC_TEMP "sensors/temp"
 #define TOPIC_LED "sensors/led"
@@ -57,7 +57,6 @@ void mqtt_pubcallback(char* topic, byte* message, unsigned int length) {
   /* 
    *  Callback if a message is published on this topic.
    */
-  
   // Byte list to String ... plus facile a traiter ensuite !
   // Mais sans doute pas optimal en performance => heap ?
   String messageTemp ;
@@ -91,6 +90,7 @@ void mqtt_mysubscribe(char* topic) {
   /*
    * ESP souscrit a ce topic. Il faut qu'il soit connecte.
    */
+   Serial.println(topic);
   while(!client.connected()) { // Loop until we are reconnected
     Serial.print("Attempting MQTT connection...");
     if(client.connect("esp32", "try", "try")) { // Attempt to connect 
@@ -132,7 +132,9 @@ int get_pin(int pin){
 void loop () {
   char data[80];
   String payload; // Payload : "JSON ready" 
-  int32_t period = 60 * 1000l; // Publication period
+  //int32_t period = 60 * 1000l; 
+
+  // Publication period
   
   /* Subscribe to TOPIC_LED if not yet ! */
   if (!client.connected()) {
@@ -159,6 +161,7 @@ void loop () {
   Serial.println(data);
   client.publish(TOPIC_LIGHT, data);
 
-  delay(period);
+  //delay(period);
   client.loop(); // Process MQTT ... obligatoire une fois par loop()
+  delay(200);
 }
