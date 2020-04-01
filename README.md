@@ -17,6 +17,9 @@ node node_lucioles_v2.js
 ```
 
 ### 3. Lancer le client
+L'application client est faite avec vue-js.
+
+Vous pouvez trouver toute ce qui vous intéresse dans le fichier "/client/src/App.vue"
 ```
 npm run serve
 ```
