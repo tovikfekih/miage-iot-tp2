@@ -245,8 +245,6 @@ export default {
         { text: "Nom", value: "name" },
         { text: "Adresse MAC", value: "mac" },
         { text: "Etat LED", value: "led" },
-        { text: "Température Actuelle", value: "temp" },
-        { text: "Luminosité Actuelle", value: "light" },
         { text: "Alérter", value: "ping" }
       ],
       users: [],
