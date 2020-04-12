@@ -58,3 +58,8 @@ L'ESP alerté va pouvoir répondre (éteindre la LED) quand la luminosité est �
 Vous allez pouvoir voir une dialog qui s'affiche sur l'application disant que les personnes qui ont alerté ont bien répondu que tout va bien (vous pouvez alerter plusieurs personnes en même temps)
 
 Il vous faut avant tout téléverser le code sur votre ESP et ça devrait être bon .
+
+## Quelques remarques
+
+1. Le /sensors/led semble avoir été bloqué par le delay du publish des données temps et light (10 secondes ou plus ?). Pour débloquer cela, on a dédié un delay spécifique aux publish et on a gardé un delay moins important pour le reste.
+2. Il paraît qu'après un certain temps, notre broker (mqtt.miage-iot.tk) ne réagissait plus aux publish des ESP. Le simple fait de repasser sur broker.hive nous a réglés le problème (on a mis en place notre propre broker sur mon vps)
