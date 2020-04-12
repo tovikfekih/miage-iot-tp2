@@ -31,7 +31,7 @@ npm install
 
 node main.js
 ```
-> Vous pouvez configurer des constantes du serveur en modifiant le fichier `serveur/config.js` 
+> Vous pouvez configurer les constantes du serveur en modifiant le fichier `serveur/config.js` 
 
 ### 2. Lancez le client
 L'application client est faite avec `vue-js` et la librairie de composants `vuetify`.
