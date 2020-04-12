@@ -387,8 +387,10 @@ export default {
       this.users.map((u) => {
         let foundLight = this.series.light.find((v) => u._id == v.id);
         let foundTemp = this.series.temp.find((v) => u._id == v.id);
-        if (foundLight) u.temp = foundLight.data[foundLight.data.length - 1].y;
-        if (foundTemp) u.temp = foundTemp.data[foundTemp.data.length - 1].y;
+        if (foundLight && foundLight.data.length > 0)
+          u.temp = foundLight.data[foundLight.data.length - 1].y;
+        if (foundTemp && foundTemp.data.length > 0)
+          u.temp = foundTemp.data[foundTemp.data.length - 1].y;
         temp.push(u);
       });
       return temp;
