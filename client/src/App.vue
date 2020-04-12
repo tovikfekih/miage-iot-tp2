@@ -276,24 +276,24 @@ export default {
           yaxis: [
             {
               y: 30,
-              borderColor: "#ef5350",
+              borderColor: "#ef53509e",
               label: {
-                borderColor: "#ef5350",
+                borderColor: "#ef53509e",
                 style: {
                   color: "#fff",
-                  background: "#ef5350",
+                  background: "#ef53509e",
                 },
                 text: "Seuil maximum : Il fait chaud !",
               },
             },
             {
               y: 20,
-              borderColor: "#3498db",
+              borderColor: "#3498db9e",
               label: {
-                borderColor: "#3498db",
+                borderColor: "#3498db9e",
                 style: {
                   color: "#fff",
-                  background: "#3498db",
+                  background: "#3498db9e",
                 },
                 text: "Seuil minimum : Il fait froid !",
               },
@@ -338,12 +338,12 @@ export default {
           yaxis: [
             {
               y: 100,
-              borderColor: "black",
+              borderColor: "#0000009e",
               label: {
-                borderColor: "black",
+                borderColor: "#0000009e",
                 style: {
                   color: "#fff",
-                  background: "black",
+                  background: "#0000009e",
                 },
                 text: "Seuil minimum : Il fait sombre",
               },
