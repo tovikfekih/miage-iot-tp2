@@ -22,7 +22,6 @@ Vous aurez besoin de :
 - [MongoDB](https://docs.mongodb.com/manual/administration/install-community/)
 - Votre ESP32
 
-## Pour faire marcher en local
 ### 1. Lancez le serveur
 
 ```
