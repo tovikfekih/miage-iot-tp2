@@ -28,7 +28,7 @@
               width="100%"
               height="250"
               type="line"
-              :options="options"
+              :options="optionsTemp"
               :series="series.temp"
             ></apexchart
           ></v-card>
@@ -44,7 +44,7 @@
               width="100%"
               height="250"
               type="line"
-              :options="options"
+              :options="optionsLight"
               :series="series.light"
             ></apexchart
           ></v-card>
@@ -117,7 +117,7 @@
               </v-row>
             </v-card-title>
             <v-card-text>
-              <v-data-table :headers="headers" :items="users">
+              <v-data-table :headers="headers" :items="usersComputed">
                 <template v-slot:item.name="{ item }">
                   <v-chip color="primary"> {{ item.name }}</v-chip>
                 </template>
@@ -132,23 +132,18 @@
                   ></v-btn>
                 </template>
                 <template v-slot:item.temp="{ item }">
-                  <v-chip v-if="item.data.temp.length <= 0"> °c</v-chip>
-                  <v-chip v-else>
-                    {{
-                      item.data.temp[0].data[item.data.temp[0].data.length - 1]
-                        .y
-                    }}
+                  <v-chip>
+                    {{ item.temp }}
                     °c
                   </v-chip>
                 </template>
                 <template v-slot:item.light="{ item }">
-                  <v-chip v-if="item.data.light.length <= 0"></v-chip>
-                  <v-chip v-else>
-                    {{
-                      item.data.light[0].data[
-                        item.data.light[0].data.length - 1
-                      ].y
-                    }}
+                  <v-chip>
+                    <v-icon small left v-if="item.light > 100"
+                      >mdi-weather-sunny</v-icon
+                    >
+                    <v-icon small left v-else>mdi-weather-night</v-icon>
+                    {{ item.light }}
                   </v-chip>
                 </template>
                 <template v-slot:item.ping="{ item }">
@@ -167,11 +162,7 @@
           </v-card>
         </v-col>
       </v-row>
-      <v-dialog
-        :value="userLedOK.length > 0"
-        max-width="550px"
-        @close="userLedOK = []"
-      >
+      <v-dialog v-model="dialogPing" max-width="550px">
         <v-card v-if="userLedOK">
           <v-card-text class="pa-8">
             <div class="display-2 text-center font-weight-thin">
@@ -216,6 +207,7 @@ export default {
       ],
       repeatInterval: null,
       dialog: false,
+      dialogPing: false,
       created: false,
       userLedOK: [],
       loading: false,
@@ -250,6 +242,7 @@ export default {
         { text: "Alérter", value: "ping" },
       ],
       users: [],
+
       series: {
         temp: [],
         light: [],
@@ -274,7 +267,35 @@ export default {
           show: false,
         },
       },
-      options: {
+      optionsTemp: {
+        annotations: {
+          yaxis: [
+            {
+              y: 30,
+              borderColor: "#ef5350",
+              label: {
+                borderColor: "#ef5350",
+                style: {
+                  color: "#fff",
+                  background: "#ef5350",
+                },
+                text: "Seuil maximum : Il fait chaud !",
+              },
+            },
+            {
+              y: 20,
+              borderColor: "#3498db",
+              label: {
+                borderColor: "#3498db",
+                style: {
+                  color: "#fff",
+                  background: "#3498db",
+                },
+                text: "Seuil minimum : Il fait froid !",
+              },
+            },
+          ],
+        },
         legend: {
           position: "bottom",
           horizontalAlign: "center",
@@ -289,6 +310,61 @@ export default {
           toolbar: {
             show: true,
             autoSelected: "zoom",
+          },
+        },
+        tooltip: {
+          x: {
+            format: "MM/dd HH:mm:ss",
+          },
+        },
+        xaxis: {
+          type: "datetime",
+          labels: {
+            datetimeFormatter: {
+              year: "yyyy",
+              month: "MMM 'yy",
+              day: "HH:mm",
+              hour: "HH:mm",
+            },
+          },
+        },
+      },
+      optionsLight: {
+        annotations: {
+          yaxis: [
+            {
+              y: 100,
+              borderColor: "black",
+              label: {
+                borderColor: "black",
+                style: {
+                  color: "#fff",
+                  background: "black",
+                },
+                text: "Seuil minimum : Il fait sombre",
+              },
+            },
+          ],
+        },
+        legend: {
+          position: "bottom",
+          horizontalAlign: "center",
+        },
+        stroke: {
+          width: 1.5,
+        },
+        chart: {
+          selection: {
+            enabled: true,
+          },
+          toolbar: {
+            show: true,
+            autoSelected: "zoom",
+          },
+        },
+        tooltip: {
+          x: {
+            format: "MM/dd HH:mm:ss",
           },
         },
         xaxis: {
@@ -306,6 +382,17 @@ export default {
     };
   },
   computed: {
+    usersComputed() {
+      let temp = [];
+      this.users.map((u) => {
+        let foundLight = this.series.light.find((v) => u._id == v.id);
+        let foundTemp = this.series.temp.find((v) => u._id == v.id);
+        if (foundLight) u.temp = foundLight.data[foundLight.data.length - 1].y;
+        if (foundTemp) u.temp = foundTemp.data[foundTemp.data.length - 1].y;
+        temp.push(u);
+      });
+      return temp;
+    },
     inputErrors() {
       return {
         name: this.userModelForm.name.trim() == "" ? ["Le nom est requis"] : [],
@@ -350,15 +437,29 @@ export default {
       });
     },
     checkPingBack() {
+      let t = this;
+      let gotPing = false;
       this.$axios.get("/users").then((r) => {
         r.data.map((u) => {
           if (u.led_ok) {
             if (moment(u.led_ok).isAfter(moment().subtract(15, "seconds"))) {
-              this.userLedOK.push(u);
+              let foundIndex = t.userLedOK.findIndex((v) => {
+                return v._id == u._id;
+              });
+
+              if (foundIndex < 0) {
+                t.userLedOK.push(u);
+                gotPing = true;
+              } else if (t.userLedOK[foundIndex].led_ok != u.led_ok) {
+                t.userLedOK[foundIndex].led_ok = u.led_ok;
+                gotPing = true;
+              }
             }
           }
           return u;
         });
+        console.log(gotPing);
+        if (gotPing) t.dialogPing = gotPing;
       });
     },
     getClients() {
@@ -380,6 +481,7 @@ export default {
     handleUserGraph(client, data, graph) {
       this.series[graph];
       let s = {
+        id: client._id,
         name: client.name,
         data: [],
       };
