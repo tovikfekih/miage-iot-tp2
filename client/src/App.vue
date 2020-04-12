@@ -19,7 +19,7 @@
         <v-col>
           <v-card class="pa-0">
             <v-card-title class="pb-0">
-              <div class="text-center" style="width:100%">
+              <div class="text-center" style="width: 100%;">
                 Temperature
               </div>
             </v-card-title>
@@ -36,7 +36,7 @@
         <v-col>
           <v-card class="pa-0">
             <v-card-title class="pb-0">
-              <div class="text-center" style="width:100%">
+              <div class="text-center" style="width: 100%;">
                 Lights
               </div> </v-card-title
             ><apexchart
@@ -155,7 +155,7 @@
                   <v-btn
                     :disabled="item.data.alerted"
                     color="red lighten-1"
-                    class=" white--text"
+                    class="white--text"
                     @click="alerter(item)"
                   >
                     <v-icon left small>mdi-alert</v-icon>
@@ -181,7 +181,7 @@
               Ces personnes que vous avez alerté vous ont répondu que tout va
               bien !
             </div>
-            <div class=" text-center">
+            <div class="text-center">
               <v-chip
                 class="ml-2"
                 large
@@ -202,7 +202,7 @@ import moment from "moment";
 import ApexChart from "vue-apexcharts";
 export default {
   components: {
-    apexchart: ApexChart
+    apexchart: ApexChart,
   },
   data() {
     return {
@@ -212,7 +212,7 @@ export default {
         "Celine MARIN",
         "Yan FULCONIS",
         "Ines NABIL",
-        "Maxime MARIAS"
+        "Maxime MARIAS",
       ],
       repeatInterval: null,
       dialog: false,
@@ -227,8 +227,8 @@ export default {
         data: {
           temp: [],
           light: [],
-          ledOn: false
-        }
+          ledOn: false,
+        },
       },
       userModel: {
         name: "",
@@ -238,56 +238,58 @@ export default {
         data: {
           temp: [],
           light: [],
-          ledOn: false
-        }
+          ledOn: false,
+        },
       },
       headers: [
         { text: "Nom", value: "name" },
         { text: "Adresse MAC", value: "mac" },
         { text: "Etat LED", value: "led" },
-        { text: "Alérter", value: "ping" }
+        { text: "Température Actuelle", value: "temp" },
+        { text: "Luminosité Actuelle", value: "light" },
+        { text: "Alérter", value: "ping" },
       ],
       users: [],
       series: {
         temp: [],
-        light: []
+        light: [],
       },
       tableOptions: {
         yaxis: {
-          labels: { show: false }
+          labels: { show: false },
         },
         xaxis: {
           type: "datetime",
-          labels: { show: false }
+          labels: { show: false },
         },
         chart: {
           toolbar: {
-            show: false
-          }
+            show: false,
+          },
         },
         grid: {
-          show: false
+          show: false,
         },
         legend: {
-          show: false
-        }
+          show: false,
+        },
       },
       options: {
         legend: {
           position: "bottom",
-          horizontalAlign: "center"
+          horizontalAlign: "center",
         },
         stroke: {
-          width: 1.5
+          width: 1.5,
         },
         chart: {
           selection: {
-            enabled: true
+            enabled: true,
           },
           toolbar: {
             show: true,
-            autoSelected: "zoom"
-          }
+            autoSelected: "zoom",
+          },
         },
         xaxis: {
           type: "datetime",
@@ -296,11 +298,11 @@ export default {
               year: "yyyy",
               month: "MMM 'yy",
               day: "HH:mm",
-              hour: "HH:mm"
-            }
-          }
-        }
-      }
+              hour: "HH:mm",
+            },
+          },
+        },
+      },
     };
   },
   computed: {
@@ -310,16 +312,20 @@ export default {
         mac:
           this.userModelForm.mac.trim() == ""
             ? ["L'adresse mac est requise"]
-            : []
+            : [],
       };
-    }
+    },
   },
   created() {
     let t = this;
     this.getClients();
-    (function() {
+    (function () {
       // do some stuff
       setInterval(t.getClients, 10000);
+    })();
+    (function () {
+      // do some stuff
+      setInterval(t.checkPingBack, 1500);
     })();
   },
   methods: {
@@ -332,30 +338,37 @@ export default {
     addClient() {
       const form = {
         name: this.userModelForm.name,
-        mac: this.userModelForm.mac
+        mac: this.userModelForm.mac,
       };
       if (this.inputErrors.name.length > 0 || this.inputErrors.mac.length > 0)
         return;
-      this.$axios.post("/users", form).then(r => {
+      this.$axios.post("/users", form).then((r) => {
         this.getClients();
         this.userModelForm.name = "";
         this.userModelForm.mac = "";
         this.dialog = false;
       });
     },
-    getClients() {
-      this.$axios.get("/users").then(r => {
-        r.data.map(u => {
+    checkPingBack() {
+      this.$axios.get("/users").then((r) => {
+        r.data.map((u) => {
           if (u.led_ok) {
             if (moment(u.led_ok).isAfter(moment().subtract(15, "seconds"))) {
               this.userLedOK.push(u);
             }
           }
+          return u;
+        });
+      });
+    },
+    getClients() {
+      this.$axios.get("/users").then((r) => {
+        r.data.map((u) => {
           u.data = {
             temp: [],
             light: [],
             ledOn: false,
-            alerted: false
+            alerted: false,
           };
           return u;
         });
@@ -368,12 +381,12 @@ export default {
       this.series[graph];
       let s = {
         name: client.name,
-        data: []
+        data: [],
       };
-      data.map(o => {
+      data.map((o) => {
         s.data.push({
           x: o.date,
-          y: o.value
+          y: o.value,
         });
       });
       let found = false;
@@ -392,26 +405,26 @@ export default {
     alerter(client) {
       this.$axios
         .get("/ping/" + client.mac + "/" + (client.data.ledOn ? "off" : "on"))
-        .then(r => {
+        .then((r) => {
           client.data.alerted = true;
           client.data.ledOn = !client.data.ledOn;
         });
     },
     getClientData(clientIndex) {
-      this.$axios.get(`esp/${this.users[clientIndex].mac}/temp`).then(r => {
+      this.$axios.get(`esp/${this.users[clientIndex].mac}/temp`).then((r) => {
         this.handleUserGraph(this.users[clientIndex], r.data, "temp");
         if (r.data.length > 0) {
           this.users[clientIndex].temp = r.data[r.data.length - 1].value;
         }
       });
-      this.$axios.get(`esp/${this.users[clientIndex].mac}/light`).then(r => {
+      this.$axios.get(`esp/${this.users[clientIndex].mac}/light`).then((r) => {
         this.handleUserGraph(this.users[clientIndex], r.data, "light");
         if (r.data.length > 0) {
           this.users[clientIndex].light = r.data[r.data.length - 1].value;
         }
       });
-    }
-  }
+    },
+  },
 };
 </script>
 
