@@ -162,21 +162,25 @@
           </v-card>
         </v-col>
       </v-row>
-      <v-dialog v-model="dialogPing" max-width="550px">
-        <v-card v-if="userLedOK">
+      <v-dialog
+        v-model="dialogPing"
+        max-width="550px"
+        @close="dialogPing = false"
+      >
+        <v-card v-if="lastUsersPinged">
           <v-card-text class="pa-8">
             <div class="display-2 text-center font-weight-thin">
               Bonne nouvelle !
             </div>
             <div class="body-1 text-center mt-2 px-8 py-5">
               Ces personnes que vous avez alerté vous ont répondu que tout va
-              bien !
+              bien et qu'ils n'ont pas le CORONA !
             </div>
             <div class="text-center">
               <v-chip
                 class="ml-2"
                 large
-                v-for="(u, index) in userLedOK"
+                v-for="(u, index) in lastUsersPinged"
                 :key="index"
                 >{{ u.name }} [{{ u.mac }}]</v-chip
               >
@@ -382,6 +386,11 @@ export default {
     };
   },
   computed: {
+    lastUsersPinged() {
+      return this.userLedOK.filter((u) => {
+        return moment(u.led_ok).isAfter(moment().subtract(15, "seconds"));
+      });
+    },
     usersComputed() {
       let temp = [];
       this.users.map((u) => {
@@ -461,7 +470,7 @@ export default {
           return u;
         });
         console.log(gotPing);
-        if (gotPing) t.dialogPing = gotPing;
+        if (gotPing) this.dialogPing = gotPing;
       });
     },
     getClients() {
